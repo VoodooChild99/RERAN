@@ -184,12 +184,19 @@ int main(int argc, char *argv[])
 		int fd;
 		
 		j=0,k=0;
+
+		int fds[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 		
 		// For each of the line numbers get the event, validate it, and then write it
 		while(k < lineNumbers)
-		{				
-			deviceP[16] = eventType[k]+48; //add 48 to get to the ascii char
-			fd = open(deviceP, O_RDWR);		
+		{	
+			fd = fds[eventType[k]];
+			if (fd == -1) {
+				deviceP[16] = eventType[k]+48; //add 48 to get to the ascii char
+				fd = open(deviceP, O_RDWR);		
+				fds[eventType[k]] = fd;
+			}	
+			
 
 			int ret;
 			int version;
@@ -228,7 +235,7 @@ int main(int argc, char *argv[])
 			else
 			{		
 				// Sleep for time interval calculated in Translate
-				printf("%d. ", k);
+				printf("%zu. ", k);
 				goSleep(timeArray[j]);
 				checkEvent[0].type = codeData[k];
 				checkEvent[0].code = typeData[k];
